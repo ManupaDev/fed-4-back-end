@@ -1,6 +1,8 @@
-import { SolarUnit } from "../infrastructure/entities/SolarUnit.js";
+import { CreateSolarUnitDto } from "../domain/dtos/solar-unit";
+import { SolarUnit } from "../infrastructure/entities/SolarUnit";
+import { Request, Response } from "express";
 
-export const getAllSolarUnits = async (req, res) => {
+export const getAllSolarUnits = async (req: Request, res: Response) => {
   try {
     const solarUnits = await SolarUnit.find();
     res.status(200).json(solarUnits);
@@ -9,25 +11,30 @@ export const getAllSolarUnits = async (req, res) => {
   }
 };
 
-export const createSolarUnit = async (req, res) => {
+export const createSolarUnit = async (req: Request, res: Response) => {
   try {
-    const { serialNumber, installationDate, capacity, status } = req.body;
+    const result = CreateSolarUnitDto.safeParse(req.body);
+    if (!result.success) {
+      return res.status(400).json({ message: result.error.message });
+    }
 
     const newSolarUnit = {
-      serialNumber,
-      installationDate,
-      capacity,
-      status,
+      serialNumber: result.data.serialNumber,
+      installationDate: new Date(result.data.installationDate),
+      capacity: result.data.capacity,
+      status: result.data.status,
+      userId: result.data.userId,
     };
 
     const createdSolarUnit = await SolarUnit.create(newSolarUnit);
     res.status(201).json(createdSolarUnit);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
-export const getSolarUnitById = async (req, res) => {
+export const getSolarUnitById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const solarUnit = await SolarUnit.findById(id);
@@ -41,7 +48,7 @@ export const getSolarUnitById = async (req, res) => {
   }
 };
 
-export const updateSolarUnit = async (req, res) => {
+export const updateSolarUnit = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { serialNumber, installationDate, capacity, status } = req.body;
   const solarUnit = await SolarUnit.findById(id);
@@ -60,7 +67,7 @@ export const updateSolarUnit = async (req, res) => {
   res.status(200).json(updatedSolarUnit);
 };
 
-export const deleteSolarUnit = async (req, res) => {
+export const deleteSolarUnit = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const solarUnit = await SolarUnit.findById(id);
