@@ -1,9 +1,10 @@
 import { EnergyGenerationRecord } from "../infrastructure/entities/EnergyGenerationRecord";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export const getAllEnergyGenerationRecordsBySolarUnitId = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const energyGenerationRecords = await EnergyGenerationRecord.find({
@@ -11,6 +12,6 @@ export const getAllEnergyGenerationRecordsBySolarUnitId = async (
     });
     res.status(200).json(energyGenerationRecords);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
