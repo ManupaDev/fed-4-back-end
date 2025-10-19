@@ -20,7 +20,7 @@ async function seed() {
     // Create a new user
     const user = await User.create({
       name: "Alice Example",
-      email: "alice@example.com",
+      email: "alice@example.com", 
     });
 
     // Create a new solar unit linked to the user
