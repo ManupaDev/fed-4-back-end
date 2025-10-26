@@ -38,13 +38,9 @@ export const getAllEnergyGenerationRecordsBySolarUnitId = async (
         },
         {
           $sort: { "_id.date": -1 },
+          $limit: parseInt(limit),
         },
       ]);
-
-      if (!limit) {
-        res.status(200).json(energyGenerationRecords);
-        return;
-      }
 
       res.status(200).json(energyGenerationRecords.slice(0, parseInt(limit)));
     }
