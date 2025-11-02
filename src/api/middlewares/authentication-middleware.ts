@@ -1,4 +1,4 @@
-import { getAuth } from "@clerk/express";
+import { clerkClient, getAuth } from "@clerk/express";
 import { NextFunction, Request, Response } from "express";
 import { UnauthorizedError } from "../../domain/errors/errors";
 
