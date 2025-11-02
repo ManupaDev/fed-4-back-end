@@ -17,15 +17,8 @@ async function seed() {
     await SolarUnit.deleteMany({});
     await User.deleteMany({});
 
-    // Create a new user
-    const user = await User.create({
-      name: "Alice Example",
-      email: "alice@example.com", 
-    });
-
     // Create a new solar unit linked to the user
     const solarUnit = await SolarUnit.create({
-      userId: user._id,
       serialNumber: "SU-0001",
       installationDate: new Date("2025-08-01"),
       capacity: 5000,
@@ -35,7 +28,7 @@ async function seed() {
     // Create historical energy generation records from Aug 1, 2025 8pm to Oct 12, 2025 8am every 2 hours
     const records = [];
     const startDate = new Date("2025-08-01T08:00:00Z"); // August 1, 2025 8pm UTC
-    const endDate = new Date("2025-10-18T08:00:00Z"); // October 12, 2025 8am UTC
+    const endDate = new Date("2025-11-01T08:00:00Z"); // October 12, 2025 8am UTC
 
     let currentDate = new Date(startDate);
     let recordCount = 0;
