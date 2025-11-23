@@ -37,28 +37,28 @@ export const syncMiddleware = async (
             throw new NotFoundError("Solar unit not found");
         }
 
+        // Fetch latest records from data API
+        const dataAPIResponse = await fetch(
+            `http://localhost:8001/api/energy-generation-records/solar-unit/${solarUnit.serialNumber}`
+        );
+        if (!dataAPIResponse.ok) {
+            throw new Error("Failed to fetch energy generation records from data API");
+        }
+
+        const latestEnergyGenerationRecords = DataAPIEnergyGenerationRecordDto
+            .array()
+            .parse(await dataAPIResponse.json());
+
         // Get latest synced timestamp to only fetch new data
         const lastSyncedRecord = await EnergyGenerationRecord
             .findOne({ solarUnitId: solarUnit._id })
             .sort({ timestamp: -1 });
 
-        // Build URL with sinceTimestamp query parameter
-        const baseUrl = `http://localhost:8001/api/energy-generation-records/solar-unit/${solarUnit.serialNumber}`;
-        const url = new URL(baseUrl);
-        
-        if (lastSyncedRecord?.timestamp) {
-            url.searchParams.append('sinceTimestamp', lastSyncedRecord.timestamp.toISOString());
-        }
-
-        // Fetch latest records from data API with server-side filtering
-        const dataAPIResponse = await fetch(url.toString());
-        if (!dataAPIResponse.ok) {
-            throw new Error("Failed to fetch energy generation records from data API");
-        }
-
-        const newRecords = DataAPIEnergyGenerationRecordDto
-            .array()
-            .parse(await dataAPIResponse.json());
+        // Filter records that are new (not yet in database)
+        const newRecords = latestEnergyGenerationRecords.filter(apiRecord => {
+            if (!lastSyncedRecord) return true; // First sync, add all
+            return new Date(apiRecord.timestamp) > lastSyncedRecord.timestamp;
+        });
 
         if (newRecords.length > 0) {
             // Transform API records to match schema

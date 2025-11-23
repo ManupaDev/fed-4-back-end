@@ -5,6 +5,7 @@ import { globalErrorHandler } from "./api/middlewares/global-error-handling-midd
 import { loggerMiddleware } from "./api/middlewares/logger-middleware";
 import solarUnitRouter from "./api/solar-unit";
 import { connectDB } from "./infrastructure/db";
+import { initializeScheduler } from "./infrastructure/scheduler";
 import cors from "cors";
 import webhooksRouter from "./api/webhooks";
 import { clerkMiddleware } from "@clerk/express";
@@ -28,6 +29,7 @@ server.use("/api/users", usersRouter);
 server.use(globalErrorHandler);
 
 connectDB();
+initializeScheduler();
 
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
